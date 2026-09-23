@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from backend.app.database.connection import SessionLocal
+from backend.app.database.dependencies import get_db
 from backend.app.models.apartment import Apartment
 from backend.app.schemas.apartment import (
     ApartmentCreate,
@@ -14,15 +14,6 @@ router = APIRouter(
     prefix="/apartments",
     tags=["Apartments"],
 )
-
-
-def get_db():
-    db = SessionLocal()
-
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @router.post(
