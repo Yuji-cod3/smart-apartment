@@ -1,10 +1,8 @@
 from fastapi import FastAPI
 
-from backend.app.database.connection import Base, engine
 from backend.app.models.apartment import Apartment
 from backend.app.routers import apartments
 
-Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Smart Apartment API",

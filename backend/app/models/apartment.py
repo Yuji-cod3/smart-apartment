@@ -1,5 +1,5 @@
 from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.app.database.connection import Base
 
@@ -26,4 +26,9 @@ class Apartment(Base):
         String(20),
         nullable=False,
         default="available",
+    )
+
+    tenants = relationship(
+        "User",
+        back_populates="apartment",
     )
