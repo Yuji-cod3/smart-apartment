@@ -1,9 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException
+from backend.app.services.authorization import require_admin
 from sqlalchemy.orm import Session
 
 from backend.app.database.dependencies import get_db
+from backend.app.models.apartment import Apartment
 from backend.app.models.user import User
-from backend.app.schemas.user import UserCreate, UserLogin, UserResponse
+from backend.app.schemas.user import (
+    ApartmentAssignment,
+    UserCreate,
+    UserLogin,
+    UserResponse,
+)
 from backend.app.services.auth import hash_password, verify_password
 from backend.app.services.jwt import create_access_token
 
@@ -81,3 +88,97 @@ def login_user(
         "access_token": access_token,
         "token_type": "bearer",
     }
+@router.get(
+    "/",
+    response_model=list[UserResponse],
+)
+def get_users(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    return db.query(User).all()
+@router.put(
+    "/{user_id}/apartment",
+    response_model=UserResponse,
+)
+def assign_apartment(
+    user_id: int,
+    assignment: ApartmentAssignment,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    user = (
+        db.query(User)
+        .filter(User.id == user_id)
+        .first()
+    )
+
+    if user is None:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found.",
+        )
+
+    apartment = (
+        db.query(Apartment)
+        .filter(Apartment.id == assignment.apartment_id)
+        .first()
+    )
+
+    if apartment is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Apartment not found.",
+        )
+
+    if user.role != "tenant":
+        raise HTTPException(
+            status_code=400,
+            detail="Only tenant users can be assigned to apartments.",
+        )
+
+    user.apartment_id = apartment.id
+
+    db.commit()
+    db.refresh(user)
+
+    return user
+@router.delete(
+    "/{user_id}/apartment",
+    response_model=UserResponse,
+)
+def remove_apartment_assignment(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    user = (
+        db.query(User)
+        .filter(User.id == user_id)
+        .first()
+    )
+
+    if user is None:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found.",
+        )
+
+    if user.role != "tenant":
+        raise HTTPException(
+            status_code=400,
+            detail="Only tenant users can have apartment assignments removed.",
+        )
+
+    if user.apartment_id is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Tenant is not assigned to an apartment.",
+        )
+
+    user.apartment_id = None
+
+    db.commit()
+    db.refresh(user)
+
+    return user

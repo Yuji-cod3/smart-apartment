@@ -24,6 +24,11 @@ class UserLogin(BaseModel):
         max_length=128,
     )
 
+class ApartmentAssignment(BaseModel):
+    apartment_id: int = Field(
+        ge=1,
+    )
+
 class UserResponse(BaseModel):
     id: int
     full_name: str
