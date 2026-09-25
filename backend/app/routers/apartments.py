@@ -3,14 +3,15 @@ from sqlalchemy.orm import Session
 
 from backend.app.database.dependencies import get_db
 from backend.app.models.apartment import Apartment
+from backend.app.models.user import User
 from backend.app.schemas.apartment import (
     ApartmentCreate,
     ApartmentResponse,
     ApartmentUpdate,
 )
-from backend.app.models.user import User
-from backend.app.services.security import get_current_user
 from backend.app.services.authorization import require_admin
+from backend.app.services.security import get_current_user
+
 
 router = APIRouter(
     prefix="/apartments",
@@ -51,6 +52,8 @@ def create_apartment(
     db.refresh(new_apartment)
 
     return new_apartment
+
+
 @router.get(
     "/",
     response_model=list[ApartmentResponse],
@@ -59,9 +62,24 @@ def get_apartments(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    apartments = db.query(Apartment).all()
+    if current_user.role == "admin":
+        return db.query(Apartment).all()
 
-    return apartments
+    if current_user.apartment_id is None:
+        return []
+
+    apartment = (
+        db.query(Apartment)
+        .filter(Apartment.id == current_user.apartment_id)
+        .first()
+    )
+
+    if apartment is None:
+        return []
+
+    return [apartment]
+
+
 @router.get(
     "/{apartment_id}",
     response_model=ApartmentResponse,
@@ -69,6 +87,7 @@ def get_apartments(
 def get_apartment(
     apartment_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     apartment = (
         db.query(Apartment)
@@ -82,7 +101,18 @@ def get_apartment(
             detail="Apartment not found.",
         )
 
+    if (
+        current_user.role != "admin"
+        and current_user.apartment_id != apartment.id
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Access to this apartment is not permitted.",
+        )
+
     return apartment
+
+
 @router.patch(
     "/{apartment_id}",
     response_model=ApartmentResponse,
@@ -91,6 +121,7 @@ def update_apartment(
     apartment_id: int,
     apartment_data: ApartmentUpdate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
 ):
     apartment = (
         db.query(Apartment)
@@ -131,6 +162,8 @@ def update_apartment(
     db.refresh(apartment)
 
     return apartment
+
+
 @router.delete(
     "/{apartment_id}",
     status_code=204,
@@ -138,6 +171,7 @@ def update_apartment(
 def delete_apartment(
     apartment_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
 ):
     apartment = (
         db.query(Apartment)
