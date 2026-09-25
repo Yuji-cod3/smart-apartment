@@ -5,6 +5,7 @@ from backend.app.schemas.apartment import (
 )
 from backend.app.schemas.user import (
     UserCreate,
+    UserLogin,
     UserResponse,
 )
 
@@ -14,5 +15,6 @@ __all__ = [
     "ApartmentResponse",
     "ApartmentUpdate",
     "UserCreate",
+    "UserLogin",
     "UserResponse",
 ]

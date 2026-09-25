@@ -8,7 +8,9 @@ from backend.app.schemas.apartment import (
     ApartmentResponse,
     ApartmentUpdate,
 )
-
+from backend.app.models.user import User
+from backend.app.services.security import get_current_user
+from backend.app.services.authorization import require_admin
 
 router = APIRouter(
     prefix="/apartments",
@@ -24,6 +26,7 @@ router = APIRouter(
 def create_apartment(
     apartment: ApartmentCreate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
 ):
     existing_apartment = (
         db.query(Apartment)
@@ -54,6 +57,7 @@ def create_apartment(
 )
 def get_apartments(
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     apartments = db.query(Apartment).all()
 

@@ -153,3 +153,60 @@ def test_password_is_hashed(client: TestClient, db_session):
         "WrongPassword123!",
         user.password_hash,
     )
+def test_user_login(client: TestClient):
+    client.post(
+        "/users/register",
+        json={
+            "full_name": "Login Test User",
+            "email": "login@example.com",
+            "password": "StrongPassword123!",
+        },
+    )
+
+    response = client.post(
+        "/users/login",
+        json={
+            "email": "login@example.com",
+            "password": "StrongPassword123!",
+        },
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert "access_token" in data
+    assert data["token_type"] == "bearer"
+
+
+def test_login_wrong_password(client: TestClient):
+    client.post(
+        "/users/register",
+        json={
+            "full_name": "Wrong Password User",
+            "email": "wrong-password@example.com",
+            "password": "StrongPassword123!",
+        },
+    )
+
+    response = client.post(
+        "/users/login",
+        json={
+            "email": "wrong-password@example.com",
+            "password": "WrongPassword123!",
+        },
+    )
+
+    assert response.status_code == 401
+
+
+def test_login_unknown_email(client: TestClient):
+    response = client.post(
+        "/users/login",
+        json={
+            "email": "doesnotexist@example.com",
+            "password": "StrongPassword123!",
+        },
+    )
+
+    assert response.status_code == 401
