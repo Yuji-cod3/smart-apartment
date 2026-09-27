@@ -32,3 +32,8 @@ class Apartment(Base):
         "User",
         back_populates="apartment",
     )
+    rooms = relationship(
+        "Room",
+        back_populates="apartment",
+        cascade="all, delete-orphan",
+    )

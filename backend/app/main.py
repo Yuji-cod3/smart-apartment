@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
-from backend.app.models.apartment import Apartment
 from backend.app.routers import apartments
+from backend.app.routers import rooms
 from backend.app.routers import users
 
 app = FastAPI(
@@ -11,6 +11,7 @@ app = FastAPI(
 )
 
 app.include_router(apartments.router)
+app.include_router(rooms.router)
 app.include_router(users.router)
 
 @app.get("/")
