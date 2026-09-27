@@ -31,3 +31,8 @@ class Room(Base):
         "Apartment",
         back_populates="rooms",
     )
+    devices = relationship(
+        "Device",
+        back_populates="room",
+        cascade="all, delete-orphan",
+    )

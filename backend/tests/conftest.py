@@ -73,3 +73,17 @@ def admin_user(db_session):
     db_session.refresh(admin)
 
     return admin
+@pytest.fixture()
+def tenant_user(db_session):
+    tenant = User(
+        full_name="Test Tenant",
+        email="test-tenant@example.com",
+        password_hash=hash_password("StrongPassword123!"),
+        role=UserRole.TENANT,
+    )
+
+    db_session.add(tenant)
+    db_session.commit()
+    db_session.refresh(tenant)
+
+    return tenant
