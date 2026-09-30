@@ -1,4 +1,6 @@
-from sqlalchemy import Boolean, ForeignKey, String
+from datetime import datetime
+
+from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.app.database.connection import Base
@@ -6,6 +8,10 @@ from backend.app.database.connection import Base
 
 class Device(Base):
     __tablename__ = "devices"
+    __table_args__ = (CheckConstraint("power IN ('on', 'off')", name="ck_device_power"),)
+
+    power: Mapped[str] = mapped_column(String(3), default="off", server_default="off")
+    state_updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     id: Mapped[int] = mapped_column(
         primary_key=True,

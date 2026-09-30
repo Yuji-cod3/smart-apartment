@@ -11,6 +11,8 @@ from backend.app.schemas.apartment import (
 )
 from backend.app.services.authorization import require_admin
 from backend.app.services.security import get_current_user
+from backend.app.models.automation import AutomationRule
+from backend.app.models.rent import RentCharge
 
 
 router = APIRouter(
@@ -185,6 +187,9 @@ def delete_apartment(
             detail="Apartment not found.",
         )
 
+    if db.query(RentCharge).filter_by(apartment_id=apartment_id).first():
+        raise HTTPException(409, "Apartments with rent history cannot be deleted.")
+    db.query(AutomationRule).filter_by(apartment_id=apartment_id).delete(synchronize_session="fetch")
     db.delete(apartment)
     db.commit()
 

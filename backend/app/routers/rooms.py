@@ -12,6 +12,7 @@ from backend.app.schemas.room import (
 )
 from backend.app.services.authorization import require_admin
 from backend.app.services.security import get_current_user
+from backend.app.services.automation import remove_device_rules
 
 
 router = APIRouter(
@@ -194,6 +195,7 @@ def delete_room(
             detail="Room not found.",
         )
 
+    remove_device_rules(db, [device.id for device in room.devices])
     db.delete(room)
     db.commit()
 
