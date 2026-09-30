@@ -12,7 +12,7 @@ def test_dashboard_page_and_assets_are_served(client):
         assert "text/html" in response.headers["content-type"]
         assert "/dashboard/assets/app.js" in response.text
         assert response.headers["cache-control"] == "no-store"
-    for filename in ("app.js", "styles.css", "favicon.svg"):
+    for filename in ("app.js", "rent-countdown.mjs", "styles.css", "favicon.svg"):
         assert client.get(f"/dashboard/assets/{filename}").status_code == 200
 
 

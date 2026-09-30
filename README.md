@@ -203,3 +203,18 @@ Open `http://127.0.0.1:8765/dashboard`. The command prints the location of
 `.demo/credentials.json`; use its admin or tenant email and password. This file,
 the demo database, and secret are ignored by Git. Re-running preserves demo edits.
 The demo binds to localhost. It is not a production deployment configuration.
+
+### Rent countdown
+
+After the first rent charge is paid in full, residents see a daily countdown on
+Overview and Rent & payments. Admins see each resident's countdown in Residents.
+The agreed monthly due date stays fixed: early or late payments do not shift it.
+An outstanding recorded charge uses its actual due date, with older arrears first.
+When all recorded charges are paid, the next date is an explicitly labeled estimate
+one calendar month after the latest paid charge's due date (clamped to month end).
+It stays overdue if missed; it does not silently advance or create a rent charge.
+Unassigned/inactive residents get no estimated future charge. Partial first payments
+do not activate it. Correcting all fully paid charges back to partial disables it.
+Days use UTC, matching backend rent status, and open views update across midnight.
+
+Countdown tests: `node frontend/tests/rent-countdown.test.mjs` (Node.js 22+).
