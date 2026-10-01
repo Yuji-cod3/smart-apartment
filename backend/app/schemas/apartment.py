@@ -1,6 +1,7 @@
 from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field
+from backend.app.schemas.common import NonNullUpdate
 
 
 class ApartmentStatus(str, Enum):
@@ -23,7 +24,7 @@ class ApartmentCreate(BaseModel):
     status: ApartmentStatus = ApartmentStatus.AVAILABLE
 
 
-class ApartmentUpdate(BaseModel):
+class ApartmentUpdate(NonNullUpdate):
     name: str | None = Field(
         default=None,
         min_length=1,

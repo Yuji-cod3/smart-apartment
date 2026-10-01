@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field
+from backend.app.schemas.common import NonNullUpdate
 
 
 class RoomCreate(BaseModel):
@@ -13,7 +14,7 @@ class RoomCreate(BaseModel):
     )
 
 
-class RoomUpdate(BaseModel):
+class RoomUpdate(NonNullUpdate):
     name: str | None = Field(
         default=None,
         min_length=1,

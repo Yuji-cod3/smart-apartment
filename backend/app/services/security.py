@@ -30,7 +30,7 @@ def get_current_user(
 
         user_id = payload.get("sub")
 
-        if user_id is None:
+        if not isinstance(user_id, str) or not user_id.isascii() or not user_id.isdecimal() or len(user_id) > 18 or int(user_id) < 1:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid authentication token.",

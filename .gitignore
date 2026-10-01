@@ -26,3 +26,9 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Isolated local demo data and credentials
+.demo/
+
+# Temporary pytest cache staging directories
+pytest-cache-files-*/

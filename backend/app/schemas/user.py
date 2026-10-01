@@ -1,4 +1,6 @@
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, StrictBool
+from typing import Literal
+from backend.app.schemas.rent import RentBalance
 
 from backend.app.models.user import UserRole
 
@@ -40,3 +42,14 @@ class UserResponse(BaseModel):
     model_config = ConfigDict(
         from_attributes=True,
     )
+
+
+class UserStatusUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    is_active: StrictBool
+
+
+class TenantStatusResponse(BaseModel):
+    user: UserResponse
+    tenancy_status: Literal["assigned", "unassigned"]
+    rent_balances: list[RentBalance]
