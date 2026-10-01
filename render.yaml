@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: smart-apartment
+    runtime: python
+    plan: free
+    branch: deployment/render-postgres
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: python -m alembic upgrade head && uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health/ready
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: smart-apartment-db
+          property: connectionString
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: "3.14.7"
+
+databases:
+  - name: smart-apartment-db
+    plan: free
+    databaseName: smart_apartment
+    user: smart_apartment
