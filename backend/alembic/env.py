@@ -12,9 +12,18 @@ from backend.app.models.user import User
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+database_url = settings.database_url
+
+if database_url.startswith("postgresql://"):
+    database_url = database_url.replace(
+        "postgresql://",
+        "postgresql+psycopg://",
+        1,
+    )
+
 config.set_main_option(
     "sqlalchemy.url",
-    settings.database_url,
+    database_url,
 )
 
 # Interpret the config file for Python logging.
